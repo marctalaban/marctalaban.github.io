@@ -9,6 +9,14 @@
 <meta property="og:title" content="Marc Talabán — Data, end to end">
 <meta property="og:description" content="Migrations, dbt warehouses, forecasting, and the platform underneath. Barcelona.">
 <meta property="og:type" content="profile">
+<meta property="og:image" content="https://marctalaban.github.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://marctalaban.github.io/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Marc Talabán — Data, end to end">
+<meta name="twitter:description" content="Migrations, dbt warehouses, forecasting, and the platform underneath.">
+<meta name="twitter:image" content="https://marctalaban.github.io/og-image.png">
 
 <!--
   ┌───────────────────────────────────────────────────────────────┐
@@ -143,6 +151,31 @@
   html[data-theme="light"] .icon-moon,html[data-theme="dark"] .icon-sun{display:none}
   .toggle-label::after{content:"Dark"}
   html[data-theme="dark"] .toggle-label::after{content:"Light"}
+
+  .menu-toggle{
+    display:none;flex-direction:column;justify-content:center;gap:5px;
+    width:38px;height:38px;border:1px solid var(--rule);border-radius:999px;
+    background:none;cursor:pointer;padding:0 10px;
+  }
+  .menu-toggle span{display:block;width:100%;height:1.5px;background:var(--ink);transition:transform .25s ease,opacity .25s ease}
+  .menu-toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+  .menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0}
+  .menu-toggle[aria-expanded="true"] span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+
+  @media (max-width:860px){
+    .menu-toggle{display:flex}
+    #siteNav{
+      position:fixed;inset:64px 0 0 0;z-index:39;background:var(--paper);
+      display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+      padding:8px var(--pad) 28px;transform:translateY(-8px);opacity:0;pointer-events:none;
+      transition:opacity .25s ease,transform .25s ease;
+      border-top:1px solid var(--rule);
+    }
+    #siteNav.open{opacity:1;transform:none;pointer-events:auto}
+    #siteNav a{width:100%;padding:16px 0;border-bottom:1px solid var(--rule);font-size:13px}
+    #siteNav a::after{display:none}
+    #siteNav .theme-toggle{margin-top:14px;align-self:flex-start}
+  }
 
   /* ============ hero ============ */
   .hero{padding-block:clamp(24px,3vw,40px) clamp(48px,7vw,100px)}
@@ -416,7 +449,6 @@
     .cover{aspect-ratio:16/10;order:-1}
     .section-head,.pipe-panel,.contact-grid,.form-row{grid-template-columns:1fr}
     .notes,.job{grid-template-columns:1fr}
-    .masthead nav a:not(.nav-cta){display:none}
   }
   @media (max-width:600px){
     .cards{grid-template-columns:1fr}
@@ -436,7 +468,7 @@
 <header class="masthead" id="masthead">
   <div class="wrap">
     <a href="#top" class="label" style="letter-spacing:.2em">MT · Data Engineering</a>
-    <nav>
+    <nav id="siteNav">
       <a class="label" href="#pipeline">Scope</a>
       <a class="label" href="#projects">Projects</a>
       <a class="label" href="#stack">Stack</a>
@@ -447,6 +479,9 @@
         <span class="toggle-label"></span>
       </button>
     </nav>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="siteNav">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
 
@@ -909,24 +944,24 @@
         <div class="form-row">
           <div class="field" data-field="name">
             <label for="f-name">Your name</label>
-            <input id="f-name" name="name" type="text" autocomplete="name" required>
-            <span class="err" aria-live="polite"></span>
+            <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="err-name">
+            <span class="err" id="err-name" aria-live="polite"></span>
           </div>
           <div class="field" data-field="email">
             <label for="f-email">Email</label>
-            <input id="f-email" name="email" type="email" autocomplete="email" required>
-            <span class="err" aria-live="polite"></span>
+            <input id="f-email" name="email" type="email" autocomplete="email" required aria-describedby="err-email">
+            <span class="err" id="err-email" aria-live="polite"></span>
           </div>
         </div>
         <div class="field" data-field="subject">
           <label for="f-subject">What's it about</label>
-          <input id="f-subject" name="subject" type="text" placeholder="Migration, warehouse, forecasting, other">
-          <span class="err" aria-live="polite"></span>
+          <input id="f-subject" name="subject" type="text" placeholder="Migration, warehouse, forecasting, other" aria-describedby="err-subject">
+          <span class="err" id="err-subject" aria-live="polite"></span>
         </div>
         <div class="field" data-field="message">
           <label for="f-message">Message</label>
-          <textarea id="f-message" name="message" required></textarea>
-          <span class="err" aria-live="polite"></span>
+          <textarea id="f-message" name="message" required aria-describedby="err-message"></textarea>
+          <span class="err" id="err-message" aria-live="polite"></span>
         </div>
         <div class="hp"><label for="f-company">Company (leave empty)</label><input id="f-company" name="company" type="text" tabindex="-1" autocomplete="off"></div>
         <button class="btn" type="submit" id="submitBtn">Send message</button>
@@ -974,6 +1009,25 @@
     var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
     setTheme(next);
     store(STORAGE_KEY, next);
+  });
+
+  /* ---------------- mobile menu ---------------- */
+  var menuBtn = document.getElementById("menuToggle");
+  var siteNav = document.getElementById("siteNav");
+
+  function closeMenu() {
+    siteNav.classList.remove("open");
+    menuBtn.setAttribute("aria-expanded", "false");
+  }
+  menuBtn.addEventListener("click", function () {
+    var open = siteNav.classList.toggle("open");
+    menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  siteNav.querySelectorAll("a").forEach(function (a) {
+    a.addEventListener("click", closeMenu);
+  });
+  window.addEventListener("resize", function () {
+    if (window.innerWidth > 860) closeMenu();
   });
 
   /* ---------------- sticky masthead ---------------- */
@@ -1063,7 +1117,7 @@
   /* Set this to your Formspree (or equivalent) endpoint to receive messages
      directly in your inbox. Leave it empty and the form falls back to
      opening the visitor's mail client with everything pre-filled. */
-  var FORM_ENDPOINT = "";
+  var FORM_ENDPOINT = "htttps://formspree.io/f/xbdnenbd";
   var EMAIL = "mrctalaban@gmail.com";
 
   var form = document.getElementById("contactForm");
@@ -1073,8 +1127,11 @@
   function setError(name, message) {
     var wrap = form.querySelector('[data-field="' + name + '"]');
     if (!wrap) return;
+    var input = wrap.querySelector("input,textarea");
+    var errEl = wrap.querySelector(".err");
     wrap.classList.toggle("invalid", Boolean(message));
-    wrap.querySelector(".err").textContent = message || "";
+    errEl.textContent = message || "";
+    if (input) input.setAttribute("aria-invalid", message ? "true" : "false");
   }
 
   function validate(data) {
@@ -1087,14 +1144,34 @@
     return ok;
   }
 
-  function mailtoFallback(data) {
+  function buildMailto(data) {
     var subject = data.subject.trim() || "Hello from your site";
     var body = data.message + "\n\n—\n" + data.name + "\n" + data.email;
-    window.location.href = "mailto:" + EMAIL +
+    return "mailto:" + EMAIL +
       "?subject=" + encodeURIComponent(subject) +
       "&body=" + encodeURIComponent(body);
+  }
+
+  // Called synchronously from the submit handler (no FORM_ENDPOINT configured).
+  // Still inside the user's click, so window.open is not treated as a popup.
+  function mailtoFallback(data) {
+    var win = window.open(buildMailto(data), "_blank");
     statusEl.className = "form-status ok";
-    statusEl.textContent = "Opening your mail app with the message ready to send.";
+    if (win) {
+      statusEl.textContent = "Opening your mail app with the message ready to send.";
+    } else {
+      showManualMailLink(data);
+    }
+  }
+
+  // Called after an async fetch failure. By then the user gesture has
+  // "expired" in most browsers, so window.open would silently get blocked
+  // as a popup. Instead, hand the visitor a real link they click themselves —
+  // that always works, regardless of popup-blocker settings.
+  function showManualMailLink(data) {
+    statusEl.className = "form-status ok";
+    statusEl.innerHTML = 'That didn\'t send automatically. <a href="' + buildMailto(data) +
+      '" style="color:var(--saffron);text-decoration:underline">Click here to email me directly</a>.';
   }
 
   form.addEventListener("submit", function (e) {
@@ -1132,9 +1209,7 @@
       statusEl.className = "form-status ok";
       statusEl.textContent = "Sent. I'll come back to you within a couple of days.";
     }).catch(function () {
-      statusEl.className = "form-status";
-      statusEl.textContent = "That didn't go through. Falling back to email…";
-      setTimeout(function () { mailtoFallback(data); }, 900);
+      showManualMailLink(data);
     }).then(function () {
       submitBtn.disabled = false;
     });
