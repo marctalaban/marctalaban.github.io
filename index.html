@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marc Talabán — Data, end to end</title>
+<meta name="description" content="Senior Data Engineer in Barcelona. I take data from raw ERP extract to the number someone makes a decision on: migrations, dbt warehouses, forecasting and the platform underneath.">
+<meta name="theme-color" content="#FDF6DD">
+<meta property="og:title" content="Marc Talabán — Data, end to end">
+<meta property="og:description" content="Migrations, dbt warehouses, forecasting, and the platform underneath. Barcelona.">
+<meta property="og:type" content="profile">
+
+<!--
+  ┌───────────────────────────────────────────────────────────────┐
+  │  Hey. You opened devtools. Respect.                           │
+  │                                                               │
+  │  If you came looking for suspiciously tidy markup written     │
+  │  with a lot of AI help — yes. Correct. Caught.                │
+  │                                                               │
+  │  Here's the thing though: I write pipelines that a finance    │
+  │  department closes the month on. The tool that types the      │
+  │  first draft matters a lot less than the person who reads     │
+  │  the diff, owns the rollback, and picks up the phone when     │
+  │  the 06:00 load fails. That part is stubbornly human.         │
+  │                                                               │
+  │  Adapt or get replaced by someone who did. I chose to adapt.  │
+  │                                                               │
+  │  Now go check the console, there's another one there.         │
+  │  — Marc                                                       │
+  └───────────────────────────────────────────────────────────────┘
+-->
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23FDF6DD'/%3E%3Cpath d='M8 0c6 8-6 16 0 32h8c-6-16 6-24 0-32z' fill='%239E5F3E'/%3E%3Cpath d='M22 0c5 8-5 16 0 32h6c-5-16 5-24 0-32z' fill='%231E4FCC'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,500..900,0..100,0..1&family=Instrument+Sans:wght@400..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ============ tokens ============ */
+  :root{
+    --paper:#FDF6DD;
+    --paper-2:#F5EBCB;
+    --ink:#14120E;
+    --clay:#9E5F3E;
+    --klein:#1E4FCC;
+    --saffron:#EFC04A;
+    --sage:#9BA093;
+    --band-ink:#14120E;
+    --rule:rgba(20,18,14,.15);
+    --muted:rgba(20,18,14,.62);
+    --field:rgba(20,18,14,.04);
+    --contact-bg:#14120E;
+    --contact-fg:#FDF6DD;
+    --shadow:0 30px 70px -20px rgba(20,18,14,.35);
+
+    --display:"Fraunces",Georgia,serif;
+    --body:"Instrument Sans",system-ui,-apple-system,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+
+    --pad:clamp(20px,5vw,72px);
+    --maxw:1200px;
+  }
+  html[data-theme="dark"]{
+    --paper:#141310;
+    --paper-2:#1D1B16;
+    --ink:#F3EBD4;
+    --clay:#C9835A;
+    --klein:#5C82F0;
+    --saffron:#EFC04A;
+    --sage:#8E9387;
+    --band-ink:#F3EBD4;
+    --rule:rgba(243,235,212,.16);
+    --muted:rgba(243,235,212,.62);
+    --field:rgba(243,235,212,.05);
+    --contact-bg:#0B0A08;
+    --contact-fg:#F3EBD4;
+    --shadow:0 30px 70px -20px rgba(0,0,0,.7);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--body);
+    font-size:clamp(16.5px,1.03vw,18px);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    transition:background .35s ease,color .35s ease;
+  }
+  body.locked{overflow:hidden}
+  ::selection{background:var(--klein);color:var(--paper)}
+  a{color:inherit;text-decoration:none}
+  :focus-visible{outline:2px solid var(--klein);outline-offset:3px;border-radius:2px}
+  img,svg{max-width:100%}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--pad)}
+
+  /* ============ type ============ */
+  .label{
+    font-family:var(--mono);font-size:11px;font-weight:500;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--muted);
+  }
+  .h2{
+    font-family:var(--display);
+    font-variation-settings:"opsz" 144,"SOFT" 0,"WONK" 1;
+    font-weight:900;text-transform:uppercase;letter-spacing:-.018em;line-height:.92;
+    font-size:clamp(30px,5vw,58px);margin:0;
+  }
+  .h3{
+    font-family:var(--display);
+    font-variation-settings:"opsz" 60,"WONK" 0;
+    font-weight:600;letter-spacing:-.012em;line-height:1.15;margin:0;
+  }
+  .lede{
+    font-family:var(--body);font-weight:500;
+    font-size:clamp(19px,2.05vw,24px);line-height:1.45;letter-spacing:-.008em;margin:0;
+  }
+  .muted{color:var(--muted)}
+
+  /* ============ masthead ============ */
+  .masthead{position:sticky;top:0;z-index:40;background:var(--paper);transition:background .35s ease,box-shadow .3s ease}
+  .masthead.stuck{box-shadow:0 1px 0 var(--rule)}
+  .masthead .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:14px}
+  .masthead nav{display:flex;gap:clamp(12px,1.8vw,26px);align-items:center}
+  .masthead nav a{position:relative;padding-block:4px}
+  .masthead nav a::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:currentColor;
+    transform:scaleX(0);transform-origin:left;transition:transform .3s ease;
+  }
+  .masthead nav a:hover::after{transform:scaleX(1)}
+
+  .theme-toggle{
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    background:none;border:1px solid var(--rule);border-radius:999px;
+    padding:7px 13px;color:var(--ink);font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.14em;text-transform:uppercase;
+    transition:border-color .25s ease,background .25s ease;
+  }
+  .theme-toggle:hover{border-color:var(--ink);background:var(--field)}
+  .theme-toggle svg{width:14px;height:14px;flex:none}
+  html[data-theme="light"] .icon-moon,html[data-theme="dark"] .icon-sun{display:none}
+  .toggle-label::after{content:"Dark"}
+  html[data-theme="dark"] .toggle-label::after{content:"Light"}
+
+  /* ============ hero ============ */
+  .hero{padding-block:clamp(24px,3vw,40px) clamp(48px,7vw,100px)}
+  .wordmark{
+    font-family:var(--display);
+    font-variation-settings:"opsz" 144,"SOFT" 0,"WONK" 1;
+    font-weight:900;text-transform:uppercase;line-height:.82;letter-spacing:-.032em;
+    font-size:clamp(44px,12.8vw,164px);margin:0;
+  }
+  .wordmark span{display:inline-block}
+  .hero-grid{
+    display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);
+    gap:clamp(24px,4vw,56px);align-items:end;margin-top:clamp(24px,3.5vw,44px);
+  }
+  .hero-copy > p{margin:0 0 20px}
+  .hero-meta{display:flex;gap:8px 24px;flex-wrap:wrap;padding-top:18px;border-top:1px solid var(--rule)}
+
+  .cover{position:relative;overflow:hidden;aspect-ratio:5/6;background:var(--paper-2)}
+  .cover svg{display:block;width:100%;height:100%}
+  .cover .band{
+    transform-box:fill-box;transform-origin:center bottom;transform:translateY(104%);
+    animation:rise .95s cubic-bezier(.2,.75,.25,1) forwards;
+  }
+  .cover .band:nth-child(1){animation-delay:.05s}
+  .cover .band:nth-child(2){animation-delay:.13s}
+  .cover .band:nth-child(3){animation-delay:.21s}
+  .cover .band:nth-child(4){animation-delay:.29s}
+  .cover .band:nth-child(5){animation-delay:.37s}
+  .cover .band:nth-child(6){animation-delay:.45s}
+  @keyframes rise{to{transform:translateY(0)}}
+  .cover-caption{
+    position:absolute;left:12px;bottom:9px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--band-ink);opacity:.7;
+  }
+
+  /* ============ buttons ============ */
+  .actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:26px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;cursor:pointer;
+    font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    padding:14px 22px;border-radius:999px;border:1px solid var(--ink);background:none;color:var(--ink);
+    transition:background .25s ease,color .25s ease,transform .25s ease,border-color .25s ease;
+  }
+  .btn-solid{background:var(--ink);color:var(--paper)}
+  .btn-solid:hover{background:var(--klein);border-color:var(--klein);color:#fff;transform:translateY(-2px)}
+  .btn-ghost:hover{background:var(--ink);color:var(--paper);transform:translateY(-2px)}
+  .btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+
+  /* ============ sections ============ */
+  .section{padding-block:clamp(54px,7vw,104px);border-top:1px solid var(--rule);scroll-margin-top:70px}
+  .section-head{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);
+    gap:clamp(16px,3vw,48px);align-items:start;margin-bottom:clamp(30px,4vw,52px);
+  }
+
+  /* ============ stats ============ */
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(18px,3vw,36px)}
+  .stat{border-top:3px solid var(--ink);padding-top:16px}
+  .stat:nth-child(1){border-color:var(--clay)}
+  .stat:nth-child(2){border-color:var(--klein)}
+  .stat:nth-child(3){border-color:var(--saffron)}
+  .stat:nth-child(4){border-color:var(--sage)}
+  .stat .fig{
+    font-family:var(--display);font-variation-settings:"opsz" 144,"SOFT" 0,"WONK" 1;
+    font-weight:900;font-size:clamp(38px,5.4vw,66px);line-height:.9;letter-spacing:-.03em;display:block;
+  }
+  .stat p{margin:12px 0 0;font-size:14.5px;color:var(--muted);line-height:1.5}
+
+  /* ============ pipeline ============ */
+  .pipe-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
+  .pipe-tab{
+    cursor:pointer;background:none;color:var(--muted);border:1px solid var(--rule);
+    border-radius:999px;padding:10px 17px;font-family:var(--mono);font-size:11.5px;
+    letter-spacing:.1em;text-transform:uppercase;
+    transition:all .25s ease;
+  }
+  .pipe-tab:hover{color:var(--ink);border-color:var(--ink)}
+  .pipe-tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .pipe-panel{
+    display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+    gap:clamp(20px,4vw,56px);align-items:start;
+    background:var(--paper-2);padding:clamp(22px,3.5vw,44px);border-radius:3px;
+    animation:fade .45s ease;
+  }
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .pipe-panel[hidden]{display:none}
+  .pipe-panel .h3{font-size:clamp(23px,2.7vw,32px)}
+  .pipe-panel p{margin:12px 0 0;color:var(--muted)}
+  .pipe-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .pipe-list li{
+    font-family:var(--mono);font-size:12.5px;padding-left:18px;position:relative;line-height:1.5;
+  }
+  .pipe-list li::before{content:"";position:absolute;left:0;top:.55em;width:8px;height:2px;background:var(--klein)}
+  .pipe-role{
+    display:inline-block;margin-bottom:10px;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--klein);
+  }
+
+  /* ============ project cards ============ */
+  .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+  .card{
+    background:var(--paper);padding:clamp(22px,2.6vw,32px);
+    display:flex;flex-direction:column;gap:14px;
+    transition:background .3s ease;
+  }
+  .card:hover{background:var(--paper-2)}
+  .card .h3{font-size:clamp(20px,2.1vw,25px)}
+  .card > p{margin:0;color:var(--muted);font-size:15.5px;flex:1}
+  .card-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .card-more{
+    align-self:flex-start;cursor:pointer;background:none;border:none;padding:0;color:var(--ink);
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .card-more .arrow{transition:transform .25s ease}
+  .card-more:hover .arrow{transform:translateX(5px)}
+  .card-more::before{
+    content:"";position:absolute;inset:0;
+  }
+  .card{position:relative}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+    padding:4px 9px;border:1px solid var(--rule);border-radius:999px;color:var(--muted);
+  }
+  .tag.hot{border-color:var(--klein);color:var(--klein)}
+
+  /* ============ dialog ============ */
+  dialog.sheet{
+    border:none;padding:0;background:var(--paper);color:var(--ink);
+    width:min(760px,calc(100vw - 32px));max-height:min(86vh,900px);
+    border-radius:4px;box-shadow:var(--shadow);overflow:hidden;
+  }
+  dialog.sheet::backdrop{background:rgba(20,18,14,.55);backdrop-filter:blur(3px)}
+  html[data-theme="dark"] dialog.sheet::backdrop{background:rgba(0,0,0,.7)}
+  .sheet-inner{overflow-y:auto;max-height:min(86vh,900px);padding:clamp(24px,4vw,48px)}
+  .sheet-close{
+    position:absolute;top:12px;right:12px;z-index:2;cursor:pointer;
+    width:38px;height:38px;border-radius:999px;border:1px solid var(--rule);
+    background:var(--paper);color:var(--ink);font-size:17px;line-height:1;
+    display:grid;place-items:center;transition:background .25s ease,transform .25s ease;
+  }
+  .sheet-close:hover{background:var(--ink);color:var(--paper);transform:rotate(90deg)}
+  .detail{display:none}
+  .sheet-inner .detail{display:block}
+  .sheet-inner .detail > .label{display:block;margin-bottom:10px}
+  .sheet-inner .detail h2{
+    font-family:var(--display);font-variation-settings:"opsz" 100,"SOFT" 0,"WONK" 1;
+    font-weight:900;font-size:clamp(26px,4vw,42px);line-height:1;letter-spacing:-.025em;
+    text-transform:uppercase;margin:0 0 20px;
+  }
+  .sheet-inner .detail h4{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    font-weight:500;color:var(--muted);margin:28px 0 10px;
+  }
+  .sheet-inner .detail p{margin:0 0 12px}
+  .sheet-inner .detail ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+  .sheet-inner .detail li{padding-left:4px}
+  .sheet-inner .detail li::marker{color:var(--klein)}
+  .sheet-inner .detail .tags{margin-top:14px}
+  .sheet-inner code{
+    font-family:var(--mono);font-size:.88em;background:var(--field);
+    padding:1px 5px;border-radius:3px;
+  }
+  .pullquote{
+    border-left:3px solid var(--saffron);padding:4px 0 4px 18px;margin:22px 0;
+    font-family:var(--display);font-variation-settings:"opsz" 40,"WONK" 0;
+    font-weight:500;font-size:19px;line-height:1.4;color:var(--ink);
+  }
+
+  /* ============ stack ============ */
+  .layers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,2vw,22px)}
+  .layer{padding:22px 22px 24px;background:var(--paper-2);border-radius:3px;position:relative;overflow:hidden}
+  .layer::before{content:"";position:absolute;inset:0 auto 0 0;width:4px}
+  .layer.bronze::before{background:var(--clay)}
+  .layer.silver::before{background:var(--sage)}
+  .layer.gold::before{background:var(--saffron)}
+  .layer.plat::before{background:var(--klein)}
+  .layer .h3{font-size:20px;margin:10px 0 4px}
+  .layer .what{font-size:14px;color:var(--muted);margin:0 0 16px}
+  .layer ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+  .layer li{font-family:var(--mono);font-size:12.5px}
+  .layer li strong{font-weight:500;color:var(--klein)}
+  .layer li .sub{display:block;color:var(--muted);font-size:11px;letter-spacing:.02em;padding-left:10px}
+
+  /* ============ ways of working ============ */
+  .notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(20px,3vw,44px)}
+  .note .h3{font-size:22px;margin:12px 0 8px}
+  .note p{margin:0;color:var(--muted)}
+  .note-rule{height:3px;width:44px;border-radius:2px}
+
+  /* ============ timeline ============ */
+  .work{display:grid}
+  .job{
+    display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.3fr) minmax(0,1.1fr);
+    gap:clamp(14px,3vw,40px);padding-block:clamp(22px,2.8vw,34px);
+    border-top:1px solid var(--rule);transition:background .3s ease;
+  }
+  .job:hover{background:var(--paper-2)}
+  .job:last-child{border-bottom:1px solid var(--rule)}
+  .job .h3{font-size:clamp(19px,2vw,25px);margin-top:5px}
+  .job p{margin:5px 0 0;color:var(--muted);font-size:15.5px}
+
+  /* ============ contact ============ */
+  .contact{background:var(--contact-bg);color:var(--contact-fg);border-top:none}
+  .contact .label,.contact .muted{color:color-mix(in srgb,var(--contact-fg) 58%,transparent)}
+  .contact-mail{
+    font-family:var(--display);font-variation-settings:"opsz" 144,"SOFT" 0,"WONK" 1;
+    font-weight:900;text-transform:uppercase;letter-spacing:-.025em;line-height:.95;
+    font-size:clamp(25px,5.6vw,68px);display:inline-block;margin:14px 0 0;word-break:break-word;
+    background-image:linear-gradient(var(--saffron),var(--saffron));
+    background-repeat:no-repeat;background-position:0 100%;background-size:0 5px;
+    transition:background-size .4s cubic-bezier(.2,.75,.25,1);
+  }
+  .contact-mail:hover{background-size:100% 5px}
+  .contact-grid{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);
+    gap:clamp(28px,5vw,72px);margin-top:clamp(36px,5vw,64px);
+    padding-top:32px;border-top:1px solid color-mix(in srgb,var(--contact-fg) 18%,transparent);
+  }
+  .contact h4{
+    font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    font-weight:500;color:color-mix(in srgb,var(--contact-fg) 58%,transparent);margin:0 0 14px;
+  }
+  .contact-side p{margin:0 0 8px;font-size:15.5px}
+  .contact-side a{border-bottom:1px solid color-mix(in srgb,var(--contact-fg) 35%,transparent)}
+  .contact-side a:hover{border-color:var(--saffron);color:var(--saffron)}
+
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+  .field label{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--contact-fg) 58%,transparent)}
+  .field input,.field textarea{
+    font-family:var(--body);font-size:16px;color:var(--contact-fg);
+    background:color-mix(in srgb,var(--contact-fg) 7%,transparent);
+    border:1px solid color-mix(in srgb,var(--contact-fg) 20%,transparent);
+    border-radius:3px;padding:12px 14px;transition:border-color .2s ease,background .2s ease;
+  }
+  .field textarea{resize:vertical;min-height:120px;line-height:1.5}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--saffron);background:color-mix(in srgb,var(--contact-fg) 11%,transparent)}
+  .field .err{font-family:var(--mono);font-size:11px;color:var(--saffron);min-height:0}
+  .field.invalid input,.field.invalid textarea{border-color:var(--saffron)}
+  .contact .btn{border-color:var(--contact-fg);color:var(--contact-bg);background:var(--contact-fg)}
+  .contact .btn:hover{background:var(--saffron);border-color:var(--saffron);color:#14120E}
+  .form-status{font-family:var(--mono);font-size:12px;margin-top:14px;min-height:20px;letter-spacing:.02em}
+  .form-status.ok{color:var(--saffron)}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+  footer{
+    padding-block:30px 36px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:color-mix(in srgb,var(--contact-fg) 45%,transparent);
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  }
+  footer button{
+    background:none;border:none;padding:0;cursor:pointer;color:inherit;font:inherit;
+    letter-spacing:inherit;text-transform:inherit;border-bottom:1px dashed currentColor;
+  }
+  footer button:hover{color:var(--saffron)}
+
+  /* ============ reveal ============ */
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.75,.25,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ============ responsive ============ */
+  @media (max-width:1000px){
+    .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .layers{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr}
+    .cover{aspect-ratio:16/10;order:-1}
+    .section-head,.pipe-panel,.contact-grid,.form-row{grid-template-columns:1fr}
+    .notes,.job{grid-template-columns:1fr}
+    .masthead nav a:not(.nav-cta){display:none}
+  }
+  @media (max-width:600px){
+    .cards{grid-template-columns:1fr}
+    .layers{grid-template-columns:1fr}
+    .btn{padding:12px 18px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .cover .band{transform:none}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead" id="masthead">
+  <div class="wrap">
+    <a href="#top" class="label" style="letter-spacing:.2em">MT · Data Engineering</a>
+    <nav>
+      <a class="label" href="#pipeline">Scope</a>
+      <a class="label" href="#projects">Projects</a>
+      <a class="label" href="#stack">Stack</a>
+      <a class="label nav-cta" href="#contact">Contact</a>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch colour theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.2 5.2l1.6 1.6M17.2 17.2l1.6 1.6M18.8 5.2l-1.6 1.6M6.8 17.2l-1.6 1.6"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+        <span class="toggle-label"></span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <h1 class="wordmark"><span>Marc</span> <span>Talabán</span></h1>
+
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="lede">I take data from a raw ERP extract to the number someone actually makes a decision on — and I own every layer in between.</p>
+        <p class="muted">Senior Data Engineer and consultant, Barcelona. Migrations from Navision to Oracle Cloud Fusion, warehouses in dbt and PostgreSQL, forecasting for large organisations, and the servers and cloud keeping it all running at 06:00.</p>
+        <div class="actions">
+          <a class="btn btn-solid" href="#contact">Start a conversation</a>
+          <a class="btn btn-ghost" href="#projects">See the work</a>
+        </div>
+        <div class="hero-meta">
+          <span class="label">Open to consulting</span>
+          <span class="label">UK · US · ES projects</span>
+          <span class="label">ES / CA / EN</span>
+        </div>
+      </div>
+
+      <div class="cover">
+        <svg viewBox="0 0 500 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path class="band" fill="var(--saffron)" d="M0,0 H108 C86,120 58,200 84,300 C110,400 96,500 62,600 H0 Z"/>
+          <path class="band" fill="var(--clay)" d="M108,0 H272 C250,110 214,170 208,250 C202,330 254,410 254,480 C254,530 246,570 240,600 H62 C96,500 110,400 84,300 C58,200 86,120 108,0 Z"/>
+          <path class="band" fill="var(--band-ink)" d="M272,0 H316 V600 H240 C246,570 254,530 254,480 C254,410 202,330 208,250 C214,170 250,110 272,0 Z"/>
+          <path class="band" fill="var(--klein)" d="M316,0 H392 C374,90 404,180 386,270 C368,360 398,480 380,600 H316 Z"/>
+          <path class="band" fill="var(--klein)" d="M408,0 H452 C434,110 464,190 446,300 C428,410 458,500 440,600 H396 C414,500 384,410 402,300 C420,190 390,110 408,0 Z"/>
+          <path class="band" fill="var(--klein)" d="M470,0 H500 V600 H466 C484,490 454,400 472,290 C490,180 460,110 470,0 Z"/>
+        </svg>
+        <span class="cover-caption">Fig. 1 — a pipeline, in the abstract</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="h2">The short<br>version</h2>
+      <p class="lede">Four numbers I can defend in a room full of people who will check them.</p>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <span class="fig">33%</span>
+        <p>Revenue growth reported by a client in under three years, running on the analytics platform I designed and built — down to profitability per employee.</p>
+      </div>
+      <div class="stat">
+        <span class="fig">5+</span>
+        <p>Source systems modelled into a single warehouse: Oracle Fusion, Navision, Sage, NetSuite, and whatever gets acquired next.</p>
+      </div>
+      <div class="stat">
+        <span class="fig">2×</span>
+        <p>Faster reporting after restructuring the models underneath it. Same answers, half the wait, a fraction of the disk.</p>
+      </div>
+      <div class="stat">
+        <span class="fig">3</span>
+        <p>Countries live on migrations I ran end to end, across entities with different data, tax rules and definitions of "the same" customer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PIPELINE ============ -->
+<section class="section reveal" id="pipeline">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="h2">Where I sit<br>in the stack</h2>
+      <p class="lede">Most people own one stage of this. I've had to own all of them — usually because the project needed someone to. Pick a stage.</p>
+    </div>
+
+    <div class="pipe-tabs" role="tablist" aria-label="Pipeline stages">
+      <button class="pipe-tab" role="tab" id="tab-source" aria-controls="panel-source" aria-selected="true">01 — Source</button>
+      <button class="pipe-tab" role="tab" id="tab-move" aria-controls="panel-move" aria-selected="false">02 — Move</button>
+      <button class="pipe-tab" role="tab" id="tab-model" aria-controls="panel-model" aria-selected="false">03 — Model</button>
+      <button class="pipe-tab" role="tab" id="tab-serve" aria-controls="panel-serve" aria-selected="false">04 — Serve</button>
+      <button class="pipe-tab" role="tab" id="tab-run" aria-controls="panel-run" aria-selected="false">05 — Keep it alive</button>
+      <button class="pipe-tab" role="tab" id="tab-people" aria-controls="panel-people" aria-selected="false">06 — People</button>
+    </div>
+
+    <div class="pipe-panel" role="tabpanel" id="panel-source" aria-labelledby="tab-source">
+      <div>
+        <span class="pipe-role">Understanding the source</span>
+        <h3 class="h3">Nobody documents the ERP. So I read it.</h3>
+        <p>Before any pipeline exists, someone has to work out what the data actually means: which flag marks a cancelled line, why two customers share a tax ID, which field finance trusts and which one they quietly ignore. I do that part with the functional team, in their language, and write it down.</p>
+      </div>
+      <ul class="pipe-list">
+        <li>Oracle Fusion — TCA, AP/AR, GL, inventory</li>
+        <li>Navision, Sage, NetSuite, flat exports</li>
+        <li>BI Publisher &amp; OTBI extracts, BICC</li>
+        <li>REST and SOAP web services</li>
+        <li>Data profiling before promises</li>
+      </ul>
+    </div>
+
+    <div class="pipe-panel" role="tabpanel" id="panel-move" aria-labelledby="tab-move" hidden>
+      <div>
+        <span class="pipe-role">Ingestion &amp; migration</span>
+        <h3 class="h3">Python that survives being run twice.</h3>
+        <p>Loads fail. Networks drop mid-batch. Someone re-sends a corrected file at 19:00 the day before cutover. Every pipeline I write assumes that: state lives in PostgreSQL, so a rerun repeats nothing and skips nothing, and the error report is readable by the person who has to fix the data.</p>
+      </div>
+      <ul class="pipe-list">
+        <li>Python — requests, zeep, pandas</li>
+        <li>Idempotency ledger in PostgreSQL</li>
+        <li>Custom loaders replacing standard FBDI templates</li>
+        <li>Validation before load, not after</li>
+        <li>Rejects that a functional consultant can act on</li>
+      </ul>
+    </div>
+
+    <div class="pipe-panel" role="tabpanel" id="panel-model" aria-labelledby="tab-model" hidden>
+      <div>
+        <span class="pipe-role">Modelling</span>
+        <h3 class="h3">dbt, and the discipline that comes with it.</h3>
+        <p>Medallion architecture on PostgreSQL: raw preserved, an intermediate layer that's conformed and tested, and a star schema at the top that a business user can query without a translator. Incremental models with merge strategies where full rebuilds stop being affordable — which is sooner than most teams expect.</p>
+      </div>
+      <ul class="pipe-list">
+        <li>dbt Core &amp; dbt Cloud — models, tests, docs</li>
+        <li>Jinja macros for the patterns that repeat</li>
+        <li>Advanced SQL &amp; PostgreSQL tuning</li>
+        <li>Facts, dimensions, surrogate &amp; composite keys</li>
+        <li>Incremental + merge, snapshots, lineage</li>
+      </ul>
+    </div>
+
+    <div class="pipe-panel" role="tabpanel" id="panel-serve" aria-labelledby="tab-serve" hidden>
+      <div>
+        <span class="pipe-role">Reporting &amp; planning</span>
+        <h3 class="h3">The layer people actually look at.</h3>
+        <p>A dashboard is a user interface, and most of them are badly designed. I build around the decision being made — cash collection, stock cover, project margin — not around whichever chart type looked good in the demo. Forecasting sits here too: modelled in the warehouse, versioned, and comparable against actuals.</p>
+      </div>
+      <ul class="pipe-list">
+        <li>Power BI — models, DAX, .pbip in Git</li>
+        <li>OTBI &amp; BI Publisher</li>
+        <li>Jedox planning &amp; forecasting</li>
+        <li>Forecast vs actual variance tracking</li>
+        <li>Scheduled distribution to people, not portals</li>
+      </ul>
+    </div>
+
+    <div class="pipe-panel" role="tabpanel" id="panel-run" aria-labelledby="tab-run" hidden>
+      <div>
+        <span class="pipe-role">Platform &amp; IT</span>
+        <h3 class="h3">Whoever builds it should be able to keep it up.</h3>
+        <p>Servers, scheduling, deployments, access, backups, the cron job nobody remembers writing. I'm comfortable on the infrastructure side of the line, which means a broken load at 06:00 doesn't wait for a ticket to reach another team.</p>
+      </div>
+      <ul class="pipe-list">
+        <li>Linux servers &amp; shell scripting</li>
+        <li>Azure &amp; Google Cloud — deploy and maintain</li>
+        <li>Git, environments, CI for dbt and .pbip</li>
+        <li>Power Automate &amp; SharePoint automation</li>
+        <li>Monitoring, alerting, cost sanity</li>
+      </ul>
+    </div>
+
+    <div class="pipe-panel" role="tabpanel" id="panel-people" aria-labelledby="tab-people" hidden>
+      <div>
+        <span class="pipe-role">Delivery &amp; leadership</span>
+        <h3 class="h3">The hardest layer is the one with people in it.</h3>
+        <p>I lead small teams, and I'm the one in the room when a solution has to be defended in front of a client's management. I'd rather spend an hour aligning on what the number means than a month building the wrong one — and I'll tell a stakeholder when their request is a bad idea, with the alternative already drafted.</p>
+      </div>
+      <ul class="pipe-list">
+        <li>Leading small delivery teams</li>
+        <li>Requirements straight from the business</li>
+        <li>Solution design, presented and defended</li>
+        <li>Documentation people outside the team can read</li>
+        <li>Working languages: ES, CA, EN</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROJECTS ============ -->
+<section class="section reveal" id="projects">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="h2">Selected<br>projects</h2>
+      <p class="lede">Client names left out on purpose. Open any card for the detail — context, what I built, and what changed.</p>
+    </div>
+
+    <div class="cards">
+
+      <article class="card">
+        <div class="card-top"><span class="label">Migration</span><span class="label">Multi-entity</span></div>
+        <h3 class="h3">Navision to Oracle Cloud Fusion</h3>
+        <p>Full responsibility for the data side of the rollout — every object, every entity, every cutover rehearsal. Not a slice of it.</p>
+        <button class="card-more" data-detail="d1" type="button">Read the detail <span class="arrow">→</span></button>
+        <div class="detail" id="d1">
+          <span class="label">Migration · Oracle Cloud Fusion</span>
+          <h2>Owning the whole data migration</h2>
+          <p>On an ERP rollout, the data migration is usually split across whoever is free that week. On these projects it's mine, end to end: I'm accountable for what lands in Fusion and for whether the business recognises it on day one.</p>
+          <h4>Scope</h4>
+          <ul>
+            <li>Customers, sites, contacts and account relationships across the TCA model</li>
+            <li>Suppliers, items, price lists and organisation assignments</li>
+            <li>Open AP and AR, GL balances and opening positions</li>
+            <li>Cross-referencing legacy Navision keys to Fusion IDs, kept queryable after go-live</li>
+          </ul>
+          <h4>How it runs</h4>
+          <p>Each object has a load that validates first and writes second. State lives in PostgreSQL, so if a run dies halfway through 40,000 records, the next one continues instead of duplicating. Reconciliation queries compare Navision against Fusion after every rehearsal, so the gap list shrinks between cutovers instead of being rediscovered on the night.</p>
+          <div class="pullquote">A cutover weekend should feel like a checklist, not a rescue.</div>
+          <h4>Also handled</h4>
+          <ul>
+            <li>Flexfield configuration issues surfaced early, with the functional team</li>
+            <li>Country-specific normalisation between UK and US source data</li>
+            <li>Reconciliation packs the finance leads sign off on, in their own terms</li>
+          </ul>
+          <div class="tags"><span class="tag hot">Python</span><span class="tag">Oracle Fusion</span><span class="tag">SOAP / WSDL</span><span class="tag">PostgreSQL</span><span class="tag">Navision</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="label">Tooling</span><span class="label">Reusable</span></div>
+        <h3 class="h3">Replacing the standard loaders</h3>
+        <p>Oracle's out-of-the-box import tooling works. It just doesn't tell you why it failed. So I built the alternative.</p>
+        <button class="card-more" data-detail="d2" type="button">Read the detail <span class="arrow">→</span></button>
+        <div class="detail" id="d2">
+          <span class="label">Tooling · Built once, reused per rollout</span>
+          <h2>Migration apps, not migration scripts</h2>
+          <p>Standard spreadsheet-based import templates put the whole burden at the end: you fill in thousands of rows, submit, wait, and get back a rejection file that tells you a row failed without telling you what a human should do about it. On a rollout with several entities that cycle costs days.</p>
+          <h4>What the Python apps do instead</h4>
+          <ul>
+            <li><strong>Validate before submitting</strong> — against the target's own metadata and lookups, so most errors never reach Oracle</li>
+            <li><strong>Track every record</strong> — an idempotency ledger means reruns are free and safe</li>
+            <li><strong>Explain failures in business language</strong> — "this customer has no billing site" beats a numeric error code</li>
+            <li><strong>Configure per entity</strong> — new country, new legal entity, new mapping file; the code doesn't change</li>
+            <li><strong>Survive the next project</strong> — the same tooling has been picked up on subsequent rollouts</li>
+          </ul>
+          <h4>Engineering constraints I hold myself to</h4>
+          <p>Stable public signatures, payloads that stay byte-identical unless there's a reason not to, and changes split into independent, reviewable changesets. Migration code gets read under pressure at 02:00 — it has to be boring.</p>
+          <div class="tags"><span class="tag hot">Python</span><span class="tag">zeep / SOAP</span><span class="tag">PostgreSQL</span><span class="tag">Idempotency</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="label">Analytics</span><span class="label">Multi-year</span></div>
+        <h3 class="h3">The platform behind a 33% lift</h3>
+        <p>Finance, AP/AR, warehouse, logistics and profitability per employee — one warehouse, one definition of each number.</p>
+        <button class="card-more" data-detail="d3" type="button">Read the detail <span class="arrow">→</span></button>
+        <div class="detail" id="d3">
+          <span class="label">Analytics platform · dbt + PostgreSQL</span>
+          <h2>From spreadsheets to a warehouse people trust</h2>
+          <p>The client's own reported figures put revenue growth at 33% in under three years. I won't claim a dashboard sold anything — but the decisions behind that number were made on models I designed and built, and before that they were being made on spreadsheets that disagreed with each other.</p>
+          <h4>What was built</h4>
+          <ul>
+            <li>A medallion warehouse in dbt over PostgreSQL: raw, conformed, star schema</li>
+            <li>Facts and dimensions covering finance, AP/AR, sales, warehouse and logistics</li>
+            <li>Profitability analysis down to project and employee level</li>
+            <li>Power BI and OTBI on top, with definitions documented and agreed once</li>
+          </ul>
+          <h4>The unglamorous half</h4>
+          <p>An intermediate layer materialised as views was forcing expensive multi-join queries to re-execute on every fact build, quietly eating disk and time. Rebuilt as incremental models with a merge strategy. Roughly 2× faster refreshes and a storage problem that stopped being a weekly conversation.</p>
+          <div class="pullquote">The win isn't the dashboard. It's that two departments finally quote the same figure.</div>
+          <div class="tags"><span class="tag hot">dbt</span><span class="tag">PostgreSQL</span><span class="tag">Power BI</span><span class="tag">Star schema</span><span class="tag">OTBI</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="label">Planning</span><span class="label">Enterprise</span></div>
+        <h3 class="h3">Forecasting at scale</h3>
+        <p>Forecast models for large organisations, built in the warehouse instead of in a spreadsheet nobody can audit.</p>
+        <button class="card-more" data-detail="d4" type="button">Read the detail <span class="arrow">→</span></button>
+        <div class="detail" id="d4">
+          <span class="label">Planning &amp; forecasting</span>
+          <h2>Forecasts you can argue with</h2>
+          <p>Most forecasting dies the same way: it lives in one workbook, on one laptop, with assumptions in someone's head. When the number is questioned, nobody can reconstruct how it was produced, so the discussion becomes about trust instead of about the business.</p>
+          <h4>The approach</h4>
+          <ul>
+            <li>Drivers and assumptions modelled as data, versioned like anything else</li>
+            <li>Forecast built on the same conformed layer as actuals — so they're comparable by construction</li>
+            <li>Variance tracked over time: not just what we expect, but how wrong we usually are</li>
+            <li>Delivered through Jedox and Power BI, with scenarios the business can run themselves</li>
+          </ul>
+          <p>The point isn't a more accurate number. It's a number whose logic can be opened, challenged and corrected in a meeting.</p>
+          <div class="tags"><span class="tag hot">Jedox</span><span class="tag">dbt</span><span class="tag">Power BI</span><span class="tag">SQL</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="label">Platform</span><span class="label">IT</span></div>
+        <h3 class="h3">Servers, cloud, and the 06:00 load</h3>
+        <p>Scheduling, deployments, monitoring and the scripts holding it together. I build it and I keep it running.</p>
+        <button class="card-more" data-detail="d5" type="button">Read the detail <span class="arrow">→</span></button>
+        <div class="detail" id="d5">
+          <span class="label">Platform &amp; operations</span>
+          <h2>The part that doesn't fit in a slide</h2>
+          <p>Data teams often stop at the model and hand the rest to IT. That handover is where most of the fragility lives. I work on both sides of it: the pipeline and the box it runs on.</p>
+          <h4>Day to day</h4>
+          <ul>
+            <li>Linux servers, shell scripting, scheduled jobs and the logs to prove they ran</li>
+            <li>Azure and Google Cloud — provisioning, deploying, maintaining, and watching the bill</li>
+            <li>Git workflows and environments for dbt projects and Power BI <code>.pbip</code></li>
+            <li>Power Automate and SharePoint for the internal flows nobody wants to do by hand</li>
+            <li>Alerting that reaches a person before it reaches a stakeholder</li>
+          </ul>
+          <div class="pullquote">If it can wake me up at 06:00, I want to be able to fix it at 06:05.</div>
+          <div class="tags"><span class="tag hot">Linux</span><span class="tag">Azure</span><span class="tag">GCP</span><span class="tag">Git</span><span class="tag">Power Automate</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="label">Automation</span><span class="label">Internal</span></div>
+        <h3 class="h3">Killing the weekly manual export</h3>
+        <p>A PMO reporting pack that used to be assembled by hand, rebuilt as a flow that assembles itself.</p>
+        <button class="card-more" data-detail="d6" type="button">Read the detail <span class="arrow">→</span></button>
+        <div class="detail" id="d6">
+          <span class="label">Automation · Internal tooling</span>
+          <h2>The reporting pack that builds itself</h2>
+          <p>Every organisation has one: a recurring report that someone rebuilds manually because it's "only an hour a week". It is never only an hour, and it breaks whenever that person is on holiday.</p>
+          <h4>What it does</h4>
+          <ul>
+            <li>Pulls project exports out of NetSuite on a schedule into SharePoint</li>
+            <li>Parses the files properly, including the quoted-field edge cases that break naive splitting</li>
+            <li>Groups projects through a mapping the PMO maintains themselves, without touching the flow</li>
+            <li>Applies RAG status rules consistently, so "amber" means the same thing to everyone</li>
+          </ul>
+          <p>Small project, disproportionate effect: the weekly status conversation starts from the data instead of from assembling it.</p>
+          <div class="tags"><span class="tag hot">Power Automate</span><span class="tag">SharePoint</span><span class="tag">NetSuite</span></div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ STACK ============ -->
+<section class="section reveal" id="stack">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="h2">Stack,<br>by layer</h2>
+      <p class="lede">Grouped the way the warehouse is. The ones in colour are where I'd call myself dangerous.</p>
+    </div>
+    <div class="layers">
+      <div class="layer bronze">
+        <span class="label">01 — Bronze</span>
+        <h3 class="h3">Land it</h3>
+        <p class="what">Raw source data, unchanged, with lineage kept.</p>
+        <ul>
+          <li><strong>Python</strong><span class="sub">pandas · requests · zeep</span></li>
+          <li>Oracle Fusion · BI Publisher</li>
+          <li>REST &amp; SOAP integrations</li>
+          <li>Navision · Sage · NetSuite</li>
+        </ul>
+      </div>
+      <div class="layer silver">
+        <span class="label">02 — Silver</span>
+        <h3 class="h3">Model it</h3>
+        <p class="what">Cleaned, conformed, tested, incremental.</p>
+        <ul>
+          <li><strong>dbt Core &amp; Cloud</strong><span class="sub">Jinja macros · tests · docs</span></li>
+          <li><strong>PostgreSQL</strong><span class="sub">tuning · indexes · EXPLAIN</span></li>
+          <li>Advanced SQL · window functions</li>
+          <li>Star schemas · facts &amp; dimensions</li>
+        </ul>
+      </div>
+      <div class="layer gold">
+        <span class="label">03 — Gold</span>
+        <h3 class="h3">Serve it</h3>
+        <p class="what">What the business opens on Monday.</p>
+        <ul>
+          <li><strong>Power BI</strong><span class="sub">DAX · .pbip in Git</span></li>
+          <li>OTBI · BI Publisher</li>
+          <li>Jedox · planning &amp; forecast</li>
+          <li>Scheduled extracts</li>
+        </ul>
+      </div>
+      <div class="layer plat">
+        <span class="label">04 — Platform</span>
+        <h3 class="h3">Run it</h3>
+        <p class="what">Where it lives and who gets paged.</p>
+        <ul>
+          <li><strong>Linux &amp; shell</strong><span class="sub">cron · systemd · logs</span></li>
+          <li>Azure · Google Cloud</li>
+          <li>Git · environments · CI</li>
+          <li>Power Automate · SharePoint</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WAYS OF WORKING ============ -->
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="h2">How I<br>work</h2>
+      <p class="lede">The technical part is rarely what makes a project succeed or fail.</p>
+    </div>
+    <div class="notes">
+      <div class="note">
+        <div class="note-rule" style="background:var(--clay)"></div>
+        <h3 class="h3">I lead, and I still build</h3>
+        <p>I run small teams without leaving the codebase. Reviewing someone's model and shipping my own in the same week keeps the standards I ask for honest.</p>
+      </div>
+      <div class="note">
+        <div class="note-rule" style="background:var(--klein)"></div>
+        <h3 class="h3">I translate in both directions</h3>
+        <p>Comfortable in a room with finance, with IT, and with a client's management — and able to say the same thing three different ways without changing what's true.</p>
+      </div>
+      <div class="note">
+        <div class="note-rule" style="background:var(--saffron)"></div>
+        <h3 class="h3">I'd rather be told no early</h3>
+        <p>I design the solution, present it, and defend it in front of the group. If it's the wrong call, I want that established before it becomes three sprints of work.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EXPERIENCE ============ -->
+<section class="section reveal" id="experience">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="h2">Where<br>I've been</h2>
+      <p class="lede">Consulting since 2022, same house, growing scope.</p>
+    </div>
+    <div class="work">
+      <article class="job">
+        <div><span class="label">Mar 2025 — Present</span></div>
+        <div><h3 class="h3">Senior Data Engineer Consultant</h3><p>Timestamp España · Castelldefels</p></div>
+        <p>Data architecture and delivery across client projects: migrations, dbt warehouses, forecasting and reporting. Leading a small team and owning the technical conversation with stakeholders.</p>
+      </article>
+      <article class="job">
+        <div><span class="label">Mar 2023 — Mar 2025</span></div>
+        <div><h3 class="h3">Data Engineer &amp; Technical Programmer</h3><p>Timestamp España · Castelldefels</p></div>
+        <p>Built out the pipelines, models and dashboards behind finance, AP/AR, warehouse and logistics. Where most of the Oracle, Navision and Power BI mileage came from.</p>
+      </article>
+      <article class="job">
+        <div><span class="label">Sep 2022 — Mar 2023</span></div>
+        <div><h3 class="h3">Technical Consultant</h3><p>Timestamp España · Castelldefels</p></div>
+        <p>Requirements, SQL, and the unglamorous work of learning how each client's data actually behaves before touching it.</p>
+      </article>
+      <article class="job">
+        <div><span class="label">2021</span></div>
+        <div><h3 class="h3">Web Designer / Programmer</h3><p>Geprom Connecting Industries — part of Telefónica Tech</p></div>
+        <p>Front-end and web development in an industrial connectivity environment. The reason this page is hand-written rather than dragged together in a builder.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="section contact" id="contact">
+  <div class="wrap">
+    <span class="label">Say hello</span>
+    <div><a class="contact-mail" href="mailto:mrctalaban@gmail.com">mrctalaban@<wbr>gmail.com</a></div>
+
+    <div class="contact-grid">
+      <div class="contact-side">
+        <h4>Or just use this</h4>
+        <p class="muted">Tell me what you're trying to fix and roughly when. I answer everything that isn't a recruiter template.</p>
+        <p style="margin-top:22px"><a href="https://www.linkedin.com/in/marctalaban" target="_blank" rel="noopener">linkedin.com/in/marctalaban</a></p>
+        <p class="muted">Sant Boi de Llobregat, Barcelona</p>
+        <p class="muted">Working in Catalan, Spanish and English</p>
+      </div>
+
+      <form id="contactForm" novalidate>
+        <div class="form-row">
+          <div class="field" data-field="name">
+            <label for="f-name">Your name</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required>
+            <span class="err" aria-live="polite"></span>
+          </div>
+          <div class="field" data-field="email">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" required>
+            <span class="err" aria-live="polite"></span>
+          </div>
+        </div>
+        <div class="field" data-field="subject">
+          <label for="f-subject">What's it about</label>
+          <input id="f-subject" name="subject" type="text" placeholder="Migration, warehouse, forecasting, other">
+          <span class="err" aria-live="polite"></span>
+        </div>
+        <div class="field" data-field="message">
+          <label for="f-message">Message</label>
+          <textarea id="f-message" name="message" required></textarea>
+          <span class="err" aria-live="polite"></span>
+        </div>
+        <div class="hp"><label for="f-company">Company (leave empty)</label><input id="f-company" name="company" type="text" tabindex="-1" autocomplete="off"></div>
+        <button class="btn" type="submit" id="submitBtn">Send message</button>
+        <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+
+    <footer>
+      <span>Marc Talabán © 2026</span>
+      <span><button type="button" id="eggBtn">There's a note in the source</button></span>
+    </footer>
+  </div>
+</section>
+
+<dialog class="sheet" id="sheet" aria-label="Project detail">
+  <button class="sheet-close" id="sheetClose" type="button" aria-label="Close">✕</button>
+  <div class="sheet-inner" id="sheetInner"></div>
+</dialog>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- theme ---------------- */
+  var root = document.documentElement;
+  var STORAGE_KEY = "mt-theme";
+
+  function store(key, value) {
+    try { window.localStorage.setItem(key, value); } catch (e) { /* private mode, sandbox */ }
+  }
+  function read(key) {
+    try { return window.localStorage.getItem(key); } catch (e) { return null; }
+  }
+
+  var saved = read(STORAGE_KEY);
+  if (saved === "dark" || saved === "light") setTheme(saved);
+
+  function setTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", theme === "dark" ? "#141310" : "#FDF6DD");
+  }
+
+  document.getElementById("themeToggle").addEventListener("click", function () {
+    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    setTheme(next);
+    store(STORAGE_KEY, next);
+  });
+
+  /* ---------------- sticky masthead ---------------- */
+  var masthead = document.getElementById("masthead");
+  var onScroll = function () {
+    masthead.classList.toggle("stuck", window.scrollY > 8);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  /* ---------------- pipeline tabs ---------------- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".pipe-tab"));
+
+  function selectTab(tab) {
+    tabs.forEach(function (t) {
+      var active = t === tab;
+      t.setAttribute("aria-selected", active ? "true" : "false");
+      var panel = document.getElementById(t.getAttribute("aria-controls"));
+      if (panel) panel.hidden = !active;
+    });
+  }
+
+  tabs.forEach(function (tab, i) {
+    tab.addEventListener("click", function () { selectTab(tab); });
+    tab.addEventListener("keydown", function (e) {
+      var dir = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (!dir) return;
+      e.preventDefault();
+      var next = tabs[(i + dir + tabs.length) % tabs.length];
+      next.focus();
+      selectTab(next);
+    });
+  });
+
+  /* ---------------- project sheets ---------------- */
+  var sheet = document.getElementById("sheet");
+  var sheetInner = document.getElementById("sheetInner");
+  var lastFocused = null;
+  var supportsDialog = typeof sheet.showModal === "function";
+
+  function openSheet(id) {
+    var source = document.getElementById(id);
+    if (!source) return;
+    lastFocused = document.activeElement;
+    sheetInner.innerHTML = "";
+    sheetInner.appendChild(cloned(source));
+    if (supportsDialog) {
+      sheet.showModal();
+    } else {
+      sheet.setAttribute("open", "");
+    }
+    document.body.classList.add("locked");
+    sheetInner.scrollTop = 0;
+    document.getElementById("sheetClose").focus();
+  }
+
+  function cloned(node) {
+    var copy = node.cloneNode(true);
+    copy.removeAttribute("id");
+    return copy;
+  }
+
+  function closeSheet() {
+    if (supportsDialog && sheet.open) {
+      sheet.close();                      // fires 'close' → cleanup below
+    } else {
+      sheet.removeAttribute("open");
+      cleanup();
+    }
+  }
+
+  function cleanup() {
+    document.body.classList.remove("locked");
+    if (lastFocused && document.contains(lastFocused)) lastFocused.focus();
+  }
+
+  document.querySelectorAll(".card-more").forEach(function (btn) {
+    btn.addEventListener("click", function () { openSheet(btn.getAttribute("data-detail")); });
+  });
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  sheet.addEventListener("close", cleanup);   // covers ESC too
+  sheet.addEventListener("click", function (e) {
+    if (e.target === sheet) closeSheet();   // click on backdrop area
+  });
+
+  /* ---------------- contact form ---------------- */
+  /* Set this to your Formspree (or equivalent) endpoint to receive messages
+     directly in your inbox. Leave it empty and the form falls back to
+     opening the visitor's mail client with everything pre-filled. */
+  var FORM_ENDPOINT = "";
+  var EMAIL = "mrctalaban@gmail.com";
+
+  var form = document.getElementById("contactForm");
+  var statusEl = document.getElementById("formStatus");
+  var submitBtn = document.getElementById("submitBtn");
+
+  function setError(name, message) {
+    var wrap = form.querySelector('[data-field="' + name + '"]');
+    if (!wrap) return;
+    wrap.classList.toggle("invalid", Boolean(message));
+    wrap.querySelector(".err").textContent = message || "";
+  }
+
+  function validate(data) {
+    var ok = true;
+    ["name", "email", "subject", "message"].forEach(function (f) { setError(f, ""); });
+
+    if (!data.name.trim()) { setError("name", "Needed — who am I replying to?"); ok = false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email.trim())) { setError("email", "That address won't reach you."); ok = false; }
+    if (data.message.trim().length < 12) { setError("message", "A couple of sentences is plenty."); ok = false; }
+    return ok;
+  }
+
+  function mailtoFallback(data) {
+    var subject = data.subject.trim() || "Hello from your site";
+    var body = data.message + "\n\n—\n" + data.name + "\n" + data.email;
+    window.location.href = "mailto:" + EMAIL +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(body);
+    statusEl.className = "form-status ok";
+    statusEl.textContent = "Opening your mail app with the message ready to send.";
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var el = form.elements;
+    var data = {
+      name: el.namedItem("name").value,
+      email: el.namedItem("email").value,
+      subject: el.namedItem("subject").value,
+      message: el.namedItem("message").value,
+      company: el.namedItem("company").value
+    };
+
+    if (data.company) return;            // honeypot: bots fill this, humans don't see it
+    if (!validate(data)) {
+      statusEl.className = "form-status";
+      statusEl.textContent = "";
+      return;
+    }
+
+    if (!FORM_ENDPOINT) { mailtoFallback(data); return; }
+
+    submitBtn.disabled = true;
+    statusEl.className = "form-status";
+    statusEl.textContent = "Sending…";
+
+    fetch(FORM_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(data)
+    }).then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      form.reset();
+      statusEl.className = "form-status ok";
+      statusEl.textContent = "Sent. I'll come back to you within a couple of days.";
+    }).catch(function () {
+      statusEl.className = "form-status";
+      statusEl.textContent = "That didn't go through. Falling back to email…";
+      setTimeout(function () { mailtoFallback(data); }, 900);
+    }).then(function () {
+      submitBtn.disabled = false;
+    });
+  });
+
+  /* ---------------- reveal on scroll ---------------- */
+  var reveals = document.querySelectorAll(".reveal");
+  if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    reveals.forEach(function (el) { el.classList.add("in"); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { entry.target.classList.add("in"); io.unobserve(entry.target); }
+      });
+    }, { rootMargin: "0px 0px -10% 0px", threshold: 0.05 });
+    reveals.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---------------- for the curious ---------------- */
+  var wink = [
+    "%cSo you opened the console.",
+    "",
+    "Short version: yes, a lot of this page was written with AI help.",
+    "So is a growing share of the code running in production everywhere,",
+    "and pretending otherwise is just a slower way of falling behind.",
+    "",
+    "What doesn't get outsourced: knowing why the 06:00 load failed,",
+    "deciding what the number actually means, and being the one who",
+    "tells a client their favourite report has been wrong for a year.",
+    "",
+    "I use the tools. I own the output. Those are different skills and",
+    "I'd rather have both.",
+    "",
+    "If you got this far you're exactly the kind of person I like working",
+    "with — " + EMAIL + ". Tell me what the AI got wrong."
+  ].join("\n");
+
+  console.log(wink, "font-family:Georgia,serif;font-size:22px;font-weight:bold");
+
+  document.getElementById("eggBtn").addEventListener("click", function () {
+    statusEl.className = "form-status ok";
+    statusEl.textContent = "Two, actually. View source, then check the console.";
+    document.getElementById("contact").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+})();
+</script>
+</body>
+</html>
