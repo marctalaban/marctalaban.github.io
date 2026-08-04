@@ -1,68 +1,50 @@
-# Marc Talabán
+# marctalaban.github.io
 
-**Senior Data Engineer Consultant** · ERP integrations & data platforms · Barcelona, Spain 🇪🇸
-Enterprise ERPs by day; dbt warehouses, Python pipelines and forecasts that don't lie, every night.
+Portfolio personal. Un solo fichero estático, sin build, sin dependencias.
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/marctalaban/)
-[![Portfolio](https://img.shields.io/badge/Portfolio-14120E?style=for-the-badge&logo=googlechrome&logoColor=white)](https://marctalaban.github.io/)
-[![Profile views](https://komarev.com/ghpvc/?username=marctalaban&style=for-the-badge&color=1e4fcc&label=Profile+views)](https://komarev.com/ghpvc/?username=marctalaban)
-
----
-
-```python
-from dataclasses import dataclass
-
-@dataclass
-class MarcTalaban:
-    role: str         = "Senior Data Engineer Consultant @ Timestamp España"
-    location: str     = "Barcelona, Spain"
-    sources: tuple    = ("Oracle Cloud Fusion", "Navision", "NetSuite", "Sage")
-    warehouse: tuple  = ("dbt Core / Cloud", "PostgreSQL", "Python")
-    serves: tuple     = ("Power BI", "OTBI", "Jedox")
-    platform: tuple   = ("Azure", "Google Cloud", "Linux", "Power Automate")
-    principles: tuple = ("idempotent by default", "validate before load", "own every layer")
-
-    def say_hi(self) -> str:
-        return "Raw ERP extract to the number someone actually decides on."
+```
+index.html   ← todo: HTML + CSS + ~200 líneas de JS vanilla
 ```
 
-### 🧰 Tech
+## Antes de publicar
 
-[#-tech](#-tech)
+1. **Formulario de contacto.** En el `<script>`, busca `FORM_ENDPOINT`.
+   - Vacío (por defecto) → el formulario abre el cliente de correo del visitante con todo relleno. Funciona siempre, pero depende de que tenga mail configurado.
+   - Con endpoint → los mensajes te llegan al inbox. Crea un formulario gratis en [formspree.io](https://formspree.io) y pega la URL:
+     ```js
+     var FORM_ENDPOINT = "https://formspree.io/f/xxxxxxxx";
+     ```
+     El JS ya hace POST en JSON, valida los campos y tiene honeypot antispam. Si el POST falla, cae al mailto solo.
 
-`ERP` Oracle Cloud Fusion · Navision · NetSuite · Sage
-`Data` dbt Core & Cloud · PostgreSQL · Advanced SQL · Python
-`BI & Planning` Power BI · OTBI · Jedox
-`Platform` Azure · Google Cloud · Git · Power Automate · Linux
+2. **Números.** El 33% y el "3 países" están redactados como cifras del cliente, no como mérito propio directo. Revísalo si prefieres otra formulación.
 
-![dbt](https://img.shields.io/badge/dbt-FF694B?style=flat-square&logo=dbt&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
-![Oracle](https://img.shields.io/badge/Oracle-F80000?style=flat-square&logo=oracle&logoColor=white)
-![Power BI](https://img.shields.io/badge/Power%20BI-F2C811?style=flat-square&logo=powerbi&logoColor=black)
-![Microsoft Azure](https://img.shields.io/badge/Azure-0078D4?style=flat-square&logo=microsoftazure&logoColor=white)
-![Google Cloud](https://img.shields.io/badge/Google%20Cloud-4285F4?style=flat-square&logo=googlecloud&logoColor=white)
-![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white)
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
+3. **Modo por defecto.** Claro. Se guarda la preferencia del visitante en `localStorage`.
 
-### 🚀 Featured
+## Deploy — GitHub Pages
 
-[#-featured](#-featured)
+```bash
+git init
+git add index.html README.md
+git commit -m "portfolio"
+git branch -M main
+git remote add origin git@github.com:<usuario>/<usuario>.github.io.git
+git push -u origin main
+```
 
-| Project | What it is |
-|---|---|
-| **[marctalaban.github.io](https://marctalaban.github.io/)** | Personal portfolio — bilingual (EN/ES), dark mode, custom i18n dictionary, fully degrades without JS. Static HTML/CSS/JS, no build step. |
-| **ERP migration toolkit** *(private)* | Python apps replacing standard FBDI loaders on Navision → Oracle Cloud Fusion rollouts — idempotent, validated before load, reused across entities. |
-| **market-monitor** *(private)* | Personal crypto/equities monitor: RSI/MACD/SMA scoring, SQLite persistence, real vs. simulated modes with anti-hindsight-bias validation. |
+Settings → Pages → branch `main`, carpeta `/ (root)`. En ~1 min está en
+`https://<usuario>.github.io`. Cada push republica.
 
-### 💼 Experience
+Dominio propio: Settings → Pages → Custom domain + `CNAME` en tu DNS.
 
-[#-experience](#-experience)
+## Deploy — Netlify (alternativa)
 
-**Senior Data Engineer Consultant** · **Timestamp España** — Mar 2025 → present
-dbt · PostgreSQL · Oracle Cloud Fusion · Power BI · Python
+`app.netlify.com/drop`, arrastras la carpeta, URL al instante. Sin repo detrás.
 
-**Data Engineer & Technical Programmer** · **Timestamp España** — Mar 2023 → Mar 2025
-**Technical Consultant** · **Timestamp España** — Sep 2022 → Mar 2023
+## Personalización
 
-🎓 Ciclo Formativo de Grado Superior, Multiplatform Application Development — Institut Marianao · 2020–2022
+Todo el color y la tipografía sale de las variables en `:root` y
+`html[data-theme="dark"]`. Cambiar `--klein` cambia el acento de la página entera.
+
+Los modales de proyecto son `<div class="detail">` dentro de cada card:
+HTML estático (indexable por Google), clonado dentro de un `<dialog>` nativo al abrir.
+Para añadir un proyecto, duplica un `<article class="card">` y dale un `data-detail` nuevo.
