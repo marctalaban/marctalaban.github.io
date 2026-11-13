@@ -3,7 +3,7 @@
    side by side. To change a phrase, change it in this one block.
    The English text is also written in the HTML as a fallback, so the
    page stays readable if this script never runs.
-   The six project case studies stay in English on purpose (see
+   The project case studies (and the Lab details) stay in English on purpose (see
    "proj.ennote") — that's the industry's working language and it keeps
    the maintenance burden sane.
    ===================================================================== */
@@ -12,10 +12,10 @@ var I18N = {
     "meta.title": "Marc Talabán — Data, end to end",
     "meta.desc": "Senior Data Engineer in Barcelona. I take data from raw ERP extract to the number someone makes a decision on: migrations, dbt warehouses, forecasting and the platform underneath.",
 
-    "nav.scope": "Scope", "nav.projects": "Projects", "nav.stack": "Stack", "nav.contact": "Contact",
+    "nav.scope": "Scope", "nav.projects": "Projects", "nav.lab": "Lab", "nav.stack": "Stack", "nav.contact": "Contact",
 
     "hero.lede": "I take data from a raw ERP extract to the number someone actually makes a decision on — and I own every layer in between.",
-    "hero.sub": "Senior Data Engineer and consultant, Barcelona. Migrations from Navision to Oracle Cloud Fusion, warehouses in dbt and PostgreSQL, forecasting for large organisations, and the servers and cloud keeping it all running at 06:00.",
+    "hero.sub": "Senior Data Engineer and consultant, Barcelona. Migrations from Navision to Oracle Cloud Fusion, warehouses in dbt and PostgreSQL, forecasting for large organisations, and the servers and cloud keeping it all running at 06:00. After hours, I build the tools I wish I'd had.",
     "hero.cta1": "Start a conversation", "hero.cta2": "See the work",
     "hero.m1": "Open to consulting", "hero.m2": "UK · US · ES projects", "hero.m3": "ES / CA / EN",
     "hero.fig": "Fig. 1 — a pipeline, in the abstract",
@@ -84,6 +84,17 @@ var I18N = {
     "c6.l1": "Automation", "c6.l2": "Internal", "c6.t": "Killing the weekly manual export",
     "c6.d": "A PMO reporting pack that used to be assembled by hand, rebuilt as a flow that assembles itself.",
 
+    "lab.title": "Built<br>after hours",
+    "lab.lede": "Tools I build when the day job shows me something missing. Three of them came straight out of client work; the fourth is for me.",
+    "l1.l1": "Desktop app", "l1.l2": "Released", "l1.dl": "Download",
+    "l1.d": "A SQL client with dbt and Git built in, and guard rails that make production hard to break by accident.",
+    "l2.l1": "macOS tooling", "l2.l2": "Open source", "l2.t": "Publisher templates on a Mac",
+    "l2.d": "Design and preview Oracle BI Publisher RTF templates natively on macOS. No Windows virtual machine.",
+    "l3.l1": "Product", "l3.l2": "In progress",
+    "l3.d": "Master data migration to Oracle Fusion Cloud ERP, packaged as a product: public site, client portal and docs.",
+    "l4.l1": "Personal", "l4.l2": "Local-first",
+    "l4.d": "One app for money, training and Garmin health data. It runs on my own machine and opens like a native app on every device.",
+
     "stack.title": "Stack,<br>by layer",
     "stack.lede": "Grouped the way the warehouse is. The ones in colour are where I'd call myself dangerous.",
     "stack.bronze.h": "Land it", "stack.bronze.w": "Raw source data, unchanged, with lineage kept.",
@@ -137,10 +148,10 @@ var I18N = {
     "meta.title": "Marc Talabán — El dato, de punta a punta",
     "meta.desc": "Senior Data Engineer en Barcelona. Llevo el dato desde la extracción bruta del ERP hasta el número sobre el que alguien decide: migraciones, warehouses en dbt, forecasting y la plataforma que lo sostiene.",
 
-    "nav.scope": "Alcance", "nav.projects": "Proyectos", "nav.stack": "Stack", "nav.contact": "Contacto",
+    "nav.scope": "Alcance", "nav.projects": "Proyectos", "nav.lab": "Lab", "nav.stack": "Stack", "nav.contact": "Contacto",
 
     "hero.lede": "Llevo el dato desde la extracción bruta de un ERP hasta el número sobre el que alguien decide de verdad — y me hago cargo de todas las capas que hay en medio.",
-    "hero.sub": "Senior Data Engineer y consultor, Barcelona. Migraciones de Navision a Oracle Cloud Fusion, warehouses en dbt y PostgreSQL, forecasting para grandes organizaciones, y los servidores y la nube que lo mantienen en pie a las 06:00.",
+    "hero.sub": "Senior Data Engineer y consultor, Barcelona. Migraciones de Navision a Oracle Cloud Fusion, warehouses en dbt y PostgreSQL, forecasting para grandes organizaciones, y los servidores y la nube que lo mantienen en pie a las 06:00. Fuera de horas, construyo las herramientas que me habría gustado tener.",
     "hero.cta1": "Hablemos", "hero.cta2": "Ver el trabajo",
     "hero.m1": "Disponible para consultoría", "hero.m2": "Proyectos UK · US · ES", "hero.m3": "ES / CA / EN",
     "hero.fig": "Fig. 1 — un pipeline, en abstracto",
@@ -208,6 +219,17 @@ var I18N = {
     "c5.d": "Scheduling, despliegues, monitorización y los scripts que lo sostienen. Lo construyo y lo mantengo en marcha.",
     "c6.l1": "Automatización", "c6.l2": "Interno", "c6.t": "Matar el export manual semanal",
     "c6.d": "Un pack de reporting de PMO que se montaba a mano, reconstruido como un flujo que se monta solo.",
+
+    "lab.title": "Hecho<br>fuera de horas",
+    "lab.lede": "Herramientas que construyo cuando el trabajo me enseña que falta algo. Tres salieron directamente de proyectos con clientes; la cuarta es para mí.",
+    "l1.l1": "App de escritorio", "l1.l2": "Publicada", "l1.dl": "Descargar",
+    "l1.d": "Un cliente SQL con dbt y Git integrados, y barreras que hacen difícil romper producción por accidente.",
+    "l2.l1": "Herramientas macOS", "l2.l2": "Open source", "l2.t": "Plantillas de Publisher en Mac",
+    "l2.d": "Diseña y previsualiza plantillas RTF de Oracle BI Publisher de forma nativa en macOS. Sin máquina virtual de Windows.",
+    "l3.l1": "Producto", "l3.l2": "En curso",
+    "l3.d": "Migración de datos maestros a Oracle Fusion Cloud ERP, empaquetada como producto: web pública, portal de cliente y documentación.",
+    "l4.l1": "Personal", "l4.l2": "Local-first",
+    "l4.d": "Una sola app para dinero, entreno y datos de salud de Garmin. Vive en mi ordenador y se abre como app nativa en cualquier dispositivo.",
 
     "stack.title": "Stack,<br>por capas",
     "stack.lede": "Agrupado como está el warehouse. En color, donde me considero peligroso.",

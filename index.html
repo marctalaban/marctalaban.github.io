@@ -43,6 +43,26 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,500..900,0..100,0..1&family=Instrument+Sans:wght@400..600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+<link rel="canonical" href="https://marctalaban.github.io/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Marc Talabán",
+  "url": "https://marctalaban.github.io/",
+  "image": "https://marctalaban.github.io/og-image.png",
+  "jobTitle": "Senior Data Engineer Consultant",
+  "worksFor": { "@type": "Organization", "name": "Timestamp España" },
+  "address": { "@type": "PostalAddress", "addressLocality": "Barcelona", "addressCountry": "ES" },
+  "knowsLanguage": ["ca", "es", "en"],
+  "knowsAbout": ["Data engineering", "dbt", "PostgreSQL", "Oracle Cloud Fusion", "Data migration", "Power BI", "Python"],
+  "sameAs": [
+    "https://www.linkedin.com/in/marctalaban/",
+    "https://github.com/marctalaban"
+  ]
+}
+</script>
+
 <link rel="stylesheet" href="styles.css">
 <script>
   /* Runs before first paint. Two jobs:
@@ -79,6 +99,7 @@
     <nav id="siteNav">
       <a class="label" href="#pipeline" data-i18n="nav.scope">Scope</a>
       <a class="label" href="#projects" data-i18n="nav.projects">Projects</a>
+      <a class="label" href="#lab" data-i18n="nav.lab">Lab</a>
       <a class="label" href="#stack" data-i18n="nav.stack">Stack</a>
       <a class="label nav-cta" href="#contact" data-i18n="nav.contact">Contact</a>
       <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language / Cambiar idioma">
@@ -104,7 +125,7 @@
     <div class="hero-grid">
       <div class="hero-copy">
         <p class="lede" data-i18n="hero.lede">I take data from a raw ERP extract to the number someone actually makes a decision on — and I own every layer in between.</p>
-        <p class="muted" data-i18n="hero.sub">Senior Data Engineer and consultant, Barcelona. Migrations from Navision to Oracle Cloud Fusion, warehouses in dbt and PostgreSQL, forecasting for large organisations, and the servers and cloud keeping it all running at 06:00.</p>
+        <p class="muted" data-i18n="hero.sub">Senior Data Engineer and consultant, Barcelona. Migrations from Navision to Oracle Cloud Fusion, warehouses in dbt and PostgreSQL, forecasting for large organisations, and the servers and cloud keeping it all running at 06:00. After hours, I build the tools I wish I'd had.</p>
         <div class="actions">
           <a class="btn btn-solid" href="#contact" data-i18n="hero.cta1">Start a conversation</a>
           <a class="btn btn-ghost" href="#projects" data-i18n="hero.cta2">See the work</a>
@@ -414,7 +435,132 @@
             <li>Applies RAG status rules consistently, so "amber" means the same thing to everyone</li>
           </ul>
           <p>Small project, disproportionate effect: the weekly status conversation starts from the data instead of from assembling it.</p>
-          <div class="tags"><span class="tag hot">Power Automate</span><span class="tag">SharePoint</span><span class="tag">NetSuite</span></div>
+          <h4>What came next</h4>
+          <p>The flow did its job, and it also showed where Power Automate stops. Its successor is an internal web app in Django and HTMX: PostgreSQL with row-level security, dbt (bronze → silver → gold) feeding Power BI, orchestrated with Dagster.</p>
+          <div class="tags"><span class="tag hot">Power Automate</span><span class="tag">SharePoint</span><span class="tag">NetSuite</span><span class="tag">Django</span><span class="tag">Dagster</span></div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ LAB (own projects) ============ -->
+<section class="section reveal" id="lab">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="h2" data-i18n-html="lab.title">Built<br>after hours</h2>
+      <p class="lede" data-i18n="lab.lede">Tools I build when the day job shows me something missing. Three of them came straight out of client work; the fourth is for me.</p>
+    </div>
+
+    <div class="cards cards-2">
+
+      <article class="card">
+        <div class="card-top"><span class="label" data-i18n="l1.l1">Desktop app</span><span class="label" data-i18n="l1.l2">Released</span></div>
+        <h3 class="h3">SingularityDB</h3>
+        <p data-i18n="l1.d">A SQL client with dbt and Git built in, and guard rails that make production hard to break by accident.</p>
+        <div class="card-actions">
+          <button class="card-more" data-detail="dl1" type="button" data-i18n-html="card.more">Read the detail <span class="arrow">→</span></button>
+          <a class="card-dl" href="https://github.com/marctalaban/SingularityDB-releases/releases/latest" target="_blank" rel="noopener"><span data-i18n="l1.dl">Download</span> <span class="arrow">↓</span></a>
+        </div>
+        <div class="detail" id="dl1">
+          <span class="label">Own project · Desktop app · v0.4</span>
+          <h2>The SQL client I wanted at 02:00</h2>
+          <p>Day-to-day data work jumps between a SQL client, a terminal for dbt and Git. SingularityDB puts the three in one window, with the habits of DBeaver and a few guard rails that are easy to forget when you're tired and the connection says PROD.</p>
+          <figure class="shot">
+            <img class="shot-light" src="img/singularitydb-hero-light.jpg" alt="SingularityDB: SQL editor, results grid and query history" width="1440" height="900" loading="lazy">
+            <img class="shot-dark" src="img/singularitydb-hero-dark.jpg" alt="SingularityDB: SQL editor, results grid and query history" width="1440" height="900" loading="lazy">
+          </figure>
+          <h4>What it does</h4>
+          <ul>
+            <li><strong>PostgreSQL first</strong>, plus DuckDB, SQLite and Oracle Fusion (read-only SQL through a BI Publisher report you create once)</li>
+            <li><strong>dbt in its own window</strong>: live status for every model and test, lineage down to the column, saved jobs and Git</li>
+            <li><strong>Production is read-only</strong> until you unlock it for ten minutes, enforced by the server; writes can be dry-run inside <code>BEGIN … ROLLBACK</code>; an <code>UPDATE</code> with no <code>WHERE</code> asks first</li>
+            <li><strong>Export anywhere</strong>: CSV, real <code>.xlsx</code>, JSON, SQL — or straight into a table on another connection (PostgreSQL → DuckDB)</li>
+            <li><strong>No starting over</strong>: opens DBeaver projects in place, and shares connections through the project folder without ever sharing passwords</li>
+            <li><strong>Local first</strong>: no account, no telemetry, no cloud service</li>
+          </ul>
+          <figure class="shot">
+            <img class="shot-light" src="img/singularitydb-prod-guardrails-light.jpg" alt="A write on a production connection, blocked until it is unlocked" loading="lazy">
+            <img class="shot-dark" src="img/singularitydb-prod-guardrails-dark.jpg" alt="A write on a production connection, blocked until it is unlocked" loading="lazy">
+            <figcaption>A write on a production connection waits until you unlock it.</figcaption>
+          </figure>
+          <div class="pullquote">Production should stay read-only until you prove you meant it.</div>
+          <h4>Under the hood</h4>
+          <p>Tauri desktop shell, React and TypeScript, and a small local Node service. macOS and Windows builds, released through GitHub Actions with in-app updates.</p>
+          <figure class="shot">
+            <img class="shot-light" src="img/singularitydb-dbt-run-light.jpg" alt="The dbt window: explorer, editor and a live run" loading="lazy">
+            <img class="shot-dark" src="img/singularitydb-dbt-run-dark.jpg" alt="The dbt window: explorer, editor and a live run" loading="lazy">
+            <figcaption>dbt in its own window, on the public jaffle_shop sample project. All screenshots use invented data.</figcaption>
+          </figure>
+          <p><a href="https://github.com/marctalaban/SingularityDB-releases/releases/latest" target="_blank" rel="noopener">Download the latest release →</a> (macOS Apple silicon · Windows x64)</p>
+          <div class="tags"><span class="tag hot">TypeScript</span><span class="tag">Tauri</span><span class="tag">React</span><span class="tag">PostgreSQL</span><span class="tag">DuckDB</span><span class="tag">dbt</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="label" data-i18n="l2.l1">macOS tooling</span><span class="label" data-i18n="l2.l2">Open source</span></div>
+        <h3 class="h3" data-i18n="l2.t">Publisher templates on a Mac</h3>
+        <p data-i18n="l2.d">Design and preview Oracle BI Publisher RTF templates natively on macOS. No Windows virtual machine.</p>
+        <button class="card-more" data-detail="dl2" type="button" data-i18n-html="card.more">Read the detail <span class="arrow">→</span></button>
+        <div class="detail" id="dl2">
+          <span class="label">Own project · macOS tooling · Unofficial</span>
+          <h2>BI Publisher templates, without a Windows VM</h2>
+          <p>Oracle's Template Builder for Word only exists on Windows, so anyone on a Mac working on an Oracle Fusion project keeps a virtual machine around just to preview a report. But the engine behind that preview is Java, and Java runs on a Mac.</p>
+          <h4>What you get</h4>
+          <ul>
+            <li><strong>Template Viewer.app</strong>: Oracle's own viewer in your Applications folder, with a modern macOS look: template + XML in, PDF, HTML, Excel or Word out</li>
+            <li><strong><code>bip-preview</code></strong>: one command from template to opened output, handy while editing in Word for Mac</li>
+            <li><strong><code>bip-fields</code></strong>: the fields and repeating groups of an XML file, as ready-to-paste tags</li>
+            <li><strong><code>bip-check</code></strong>: catches open quotes, unclosed <code>for-each</code>/<code>if</code> blocks and fields that aren't in the XML, with suggestions</li>
+            <li><strong>Finder Quick Action</strong>: right-click an <code>.rtf</code> and preview it</li>
+          </ul>
+          <h4>The careful part</h4>
+          <p>It ships no Oracle software. The installer works from the user's own licensed download of Publisher Desktop, at run time, on their own Mac, and never changes or redistributes Oracle's files. The licensing is spelled out up front, not in a footnote.</p>
+          <div class="tags"><span class="tag hot">Java</span><span class="tag">Shell</span><span class="tag">macOS</span><span class="tag">BI Publisher</span><span class="tag">Oracle Fusion</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="label" data-i18n="l3.l1">Product</span><span class="label" data-i18n="l3.l2">In progress</span></div>
+        <h3 class="h3">Master Migrator</h3>
+        <p data-i18n="l3.d">Master data migration to Oracle Fusion Cloud ERP, packaged as a product: public site, client portal and docs.</p>
+        <button class="card-more" data-detail="dl3" type="button" data-i18n-html="card.more">Read the detail <span class="arrow">→</span></button>
+        <div class="detail" id="dl3">
+          <span class="label">Own project · Web product · In progress</span>
+          <h2>The migration tooling, as a product</h2>
+          <p>The loaders behind <em>Replacing the standard loaders</em> kept getting picked up on rollout after rollout. Master Migrator is the step after that: a product for migrating master data into Oracle Fusion Cloud ERP. Customers first, then suppliers and items.</p>
+          <h4>What's there so far</h4>
+          <ul>
+            <li>A bilingual public site, a client portal with per-client configuration and guides, and legal pages</li>
+            <li>Share cards and a one-pager PDF generated from the site itself</li>
+            <li>CI, technical SEO and a private preview for remote viewers</li>
+            <li>Deployable on Render or on a plain VPS</li>
+          </ul>
+          <h4>Next</h4>
+          <p>The console that runs the migrations themselves, with the same rules as the client work: validate before loading, keep a ledger, rerun safely.</p>
+          <div class="tags"><span class="tag hot">Django</span><span class="tag">HTMX</span><span class="tag">PostgreSQL</span><span class="tag">Python</span><span class="tag">Oracle Fusion</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="label" data-i18n="l4.l1">Personal</span><span class="label" data-i18n="l4.l2">Local-first</span></div>
+        <h3 class="h3">Pulso</h3>
+        <p data-i18n="l4.d">One app for money, training and Garmin health data. It runs on my own machine and opens like a native app on every device.</p>
+        <button class="card-more" data-detail="dl4" type="button" data-i18n-html="card.more">Read the detail <span class="arrow">→</span></button>
+        <div class="detail" id="dl4">
+          <span class="label">Own project · Personal app · Local-first</span>
+          <h2>Money, training and sleep, on my own machine</h2>
+          <p>I wanted one place for spending, gym sessions and Garmin data, without handing any of it to yet another subscription. Pulso lives on a laptop, and every device opens it as an app: a window on the Mac, an icon on the iPhone home screen, a private Tailscale address when I'm away from home.</p>
+          <h4>What it does</h4>
+          <ul>
+            <li><strong>Money</strong>: quick entry that understands "12,50 mercadona ayer", fixed / flexible / non-monthly budgets, and a bank statement import with no duplicates and automatic categories</li>
+            <li><strong>Training</strong>: routines, live workout logging, warm-ups and supersets, records as they happen; runs, rides and swims from Garmin with splits, heart-rate zones and race predictions</li>
+            <li><strong>Health</strong>: sleep stages, HRV, resting heart rate, Body Battery, and a daily "push or take it easy" call from the data</li>
+          </ul>
+          <h4>Same habits as at work</h4>
+          <p>One SQLite file as the single source of truth, a backup every day, and a documented schema I can ask questions of. Nothing leaves the house.</p>
+          <div class="tags"><span class="tag hot">FastAPI</span><span class="tag">React</span><span class="tag">TypeScript</span><span class="tag">SQLite</span><span class="tag">PWA</span></div>
         </div>
       </article>
 
@@ -470,8 +616,9 @@
         <ul>
           <li><strong>Linux &amp; shell</strong><span class="sub">cron · systemd · logs</span></li>
           <li>Azure · Google Cloud</li>
-          <li>Git · environments · CI</li>
+          <li>Git · environments · GitHub Actions</li>
           <li>Power Automate · SharePoint</li>
+          <li>Django · FastAPI · Tauri + React</li>
         </ul>
       </div>
     </div>

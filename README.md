@@ -1,14 +1,20 @@
 # marctalaban.github.io
 
-Portfolio personal. Un solo fichero estático, sin build, sin dependencias.
+Portfolio personal. Estático, sin build, sin dependencias.
 
 ```
-index.html   ← todo: HTML + CSS + ~200 líneas de JS vanilla
+index.html     ← contenido (inglés como fallback) y casos de estudio
+styles.css     ← tema claro/oscuro, layout
+i18n.js        ← todos los textos EN/ES
+app.js         ← idioma, tema, pestañas, modales, formulario
+og-image.png   ← imagen al compartir el enlace
+img/           ← capturas de SingularityDB (claro y oscuro)
+robots.txt, sitemap.xml ← SEO
 ```
 
 ## Antes de publicar
 
-1. **Formulario de contacto.** En el `<script>`, busca `FORM_ENDPOINT`.
+1. **Formulario de contacto.** En `app.js`, busca `FORM_ENDPOINT`.
    - Vacío (por defecto) → el formulario abre el cliente de correo del visitante con todo relleno. Funciona siempre, pero depende de que tenga mail configurado.
    - Con endpoint → los mensajes te llegan al inbox. Crea un formulario gratis en [formspree.io](https://formspree.io) y pega la URL:
      ```js
